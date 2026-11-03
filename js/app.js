@@ -494,6 +494,13 @@
   });
 
   document.addEventListener('input', function (e) {
+    // capitalize the first letter live, as you type
+    var t = e.target;
+    if (t.tagName === 'INPUT' && (t.id === 'guess' || /^a\d+$/.test(t.id)) && t.value && t.value.charAt(0) !== t.value.charAt(0).toUpperCase()) {
+      var pos = t.selectionStart, end = t.selectionEnd;
+      t.value = t.value.charAt(0).toUpperCase() + t.value.slice(1);
+      try { t.setSelectionRange(pos, end); } catch (err) {}
+    }
     if (e.target.id === 'guess') S.guessDraft = e.target.value;
     var m = /^a(\d+)$/.exec(e.target.id || '');
     if (m) S.drafts[+m[1]] = e.target.value;
