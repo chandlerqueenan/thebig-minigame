@@ -89,6 +89,8 @@
     if (!store.introSeen) return renderIntro();
 
     var hashDay = /day-?=?(\d+)/.exec(location.hash || '');
+    // once a day, greet him with the Warchest screen before the puzzle
+    if (!hashDay && store.openedOn !== todayIso) return renderWarchest(S.preview ? 1 : realToday);
     var want = parseInt(hashDay ? hashDay[1] : params.get('day'), 10);
     var day = isFinite(want) && want >= 1 ? want : (S.preview ? 1 : S.today);
     if (day > S.today) day = S.today; // no peeking ahead
@@ -159,7 +161,21 @@
       '<p>' + esc(CFG.player) + ', your six friends are writing you a new puzzle every day.</p>' +
       lineup() +
       '<div class="px" style="padding:14px;text-align:left;margin:0 0 20px">' + rulesHTML() + '</div>' +
-      '<button class="btn wide" type="button" data-action="start">PRESS START</button></div>';
+      '<button class="btn wide" type="button" data-action="start">OPEN THE WARCHEST</button></div>';
+  }
+
+  function renderWarchest(day) {
+    var done = S.schedule[day - 1] && store.attempts[S.schedule[day - 1].id] && store.attempts[S.schedule[day - 1].id].completed;
+    $app.innerHTML =
+      '<div class="splash">' + logoHTML() +
+      '<p class="gift">DAY ' + day + ' · ' + esc(fmtDay(E.localISODate(new Date()))) + '</p>' +
+      playerCard() +
+      '<button class="btn wide" type="button" data-action="open-warchest" style="margin:18px 0 6px">' + (done ? 'BACK TO THE WARCHEST' : 'OPEN THE WARCHEST') + '</button>' +
+      '<p class="sub" style="margin:22px 0 4px;color:var(--muted)">YOUR HOSTS</p>' + lineup() + '</div>';
+  }
+  function fmtDay(iso) {
+    var p = iso.split('-').map(Number);
+    return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
   }
 
   function rulesHTML() {
@@ -521,7 +537,7 @@
     var t = e.target.closest('[data-action]');
     if (!t) { if (e.target.id === 'modal') closeModal(); return; }
     var a = t.getAttribute('data-action');
-    if (a === 'start') { store.introSeen = true; save(); route(); window.scrollTo(0, 0); }
+    if (a === 'start' || a === 'open-warchest') { store.introSeen = true; store.openedOn = E.localISODate(new Date()); save(); route(); window.scrollTo(0, 0); }
     else if (a === 'help') { e.preventDefault(); openModal('<h2 id="modal-title">HOW TO PLAY</h2>' + rulesHTML() + '<h2 style="margin-top:18px">YOUR HOSTS</h2>' + lineup()); }
     else if (a === 'stats') statsModal();
     else if (a === 'archive') { e.preventDefault(); if (S.schedule.length) archiveModal(); }
