@@ -113,8 +113,7 @@
 
   function lineup() {
     return '<div class="lineup">' + CFG.hosts.map(function (h) {
-      return '<figure>' + avatar(h, 72) + '<figcaption>' + esc(h.name.toUpperCase()) + '<small>' + esc(h.domain) + '</small>' +
-        (h.lines && h.lines.length ? '<q class="line">' + esc(h.lines.join(' / ')) + '</q>' : '') + '</figcaption></figure>';
+      return '<figure>' + avatar(h, 72) + '<figcaption>' + esc(h.name.toUpperCase()) + '<small>' + esc(h.domain) + '</small></figcaption></figure>';
     }).join('') + '</div>';
   }
 
@@ -129,8 +128,9 @@
     }
     $app.innerHTML =
       '<div class="splash">' + logoHTML() +
-      '<p class="gift">INSERT COIN…<br>THE CABINET OPENS IN</p>' +
-      '<div class="clock" id="clock">--</div>' + lineup() +
+      '<p class="gift">INSERT COIN…<br>THE WARCHEST OPENS IN</p>' +
+      '<div class="clock" id="clock">--</div>' + playerCard() +
+      '<p class="sub" style="margin:22px 0 4px;color:var(--muted)">YOUR HOSTS</p>' + lineup() +
       '<p class="press">' + esc(fmtLaunch()) + '</p></div>';
     tick(); setInterval(tick, 1000);
   }
@@ -140,11 +140,18 @@
   }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
 
+  function playerCard(noSub) {
+    if (!CFG.playerAvatar) return '';
+    return '<div class="player-card">' + BMG.avatarSVG(CFG.playerAvatar, { size: 112, seasonalHat: S.theme && S.theme.hat, title: CFG.player }) +
+      '<span class="banner" style="animation:none">PLAYER 1: ' + esc(CFG.player.toUpperCase()) + '</span>' +
+      (noSub ? '' : '<p class="player-sub">Six friends. Six questions a day. One hidden category.<br>Only ' + esc(CFG.player) + ' can crack it.</p>') + '</div>';
+  }
+
   function renderIntro() {
     $app.innerHTML =
       '<div class="splash">' + logoHTML() +
       '<p class="gift">A GIFT FROM YOUR<br>SECRET SANTA</p>' +
-      (CFG.playerAvatar ? '<div style="display:grid;justify-items:center;gap:8px;margin:0 0 12px">' + BMG.avatarSVG(CFG.playerAvatar, { size: 96, seasonalHat: S.theme && S.theme.hat, title: CFG.player }) + '<span class="banner" style="animation:none">PLAYER 1: ' + esc(CFG.player.toUpperCase()) + '</span></div>' : '') +
+      playerCard(true) +
       '<p>' + esc(CFG.player) + ', your six friends are writing you a new puzzle every day.</p>' +
       lineup() +
       '<div class="px" style="padding:14px;text-align:left;margin:0 0 20px">' + rulesHTML() + '</div>' +
