@@ -232,7 +232,7 @@
     if (editing) {
       out += '<form class="answer-row" data-form="answer" data-i="' + i + '">' +
         '<label class="sr" for="a' + i + '">Answer to question ' + (i + 1) + '</label>' +
-        '<input id="a' + i + '" name="a" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" maxlength="80" placeholder="Your answer" value="' + esc(shown) + '">' +
+        '<input id="a' + i + '" name="a" autocomplete="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="done" maxlength="80" placeholder="Your answer" value="' + esc(shown) + '">' +
         '<button class="btn" type="submit">LOCK IN</button></form>';
     } else {
       out += '<div class="locked-answer"><div class="chip">' + esc(val) + '</div>' +
@@ -280,7 +280,7 @@
         (unchanged ? 'CHANGE AN ANSWER TO CHECK' : 'CHECK ANSWERS · 1 CREDIT') + '</button></div>';
     } else {
       out += '<form class="guess-row" data-form="guess"><label class="sr" for="guess">Category guess</label>' +
-        '<input id="guess" name="g" autocomplete="off" spellcheck="true" enterkeyhint="go" maxlength="120" placeholder="e.g. Things that are…" value="' + esc(S.guessDraft) + '">' +
+        '<input id="guess" name="g" autocomplete="off" autocapitalize="sentences" spellcheck="true" enterkeyhint="go" maxlength="120" placeholder="e.g. Things that are…" value="' + esc(S.guessDraft) + '">' +
         '<button class="btn red" type="submit">GUESS</button></form>';
       if (ph === 'category_incorrect') {
         out += '<div class="feedback bad' + (fb && fb.fresh ? ' shake' : '') + '"><span class="big">✗ CATEGORY INCORRECT</span>' +
@@ -419,13 +419,15 @@
     toast._t = setTimeout(function () { t.hidden = true; }, 2600);
   }
 
+  function capFirst(v) { return v ? v.charAt(0).toUpperCase() + v.slice(1) : v; }
+
   // ---------- events ----------
   document.addEventListener('submit', function (e) {
     var f = e.target, kind = f.getAttribute('data-form');
     if (!kind) return;
     e.preventDefault();
     if (kind === 'answer') {
-      var i = +f.getAttribute('data-i'), v = f.querySelector('input').value.trim();
+      var i = +f.getAttribute('data-i'), v = capFirst(f.querySelector('input').value.trim());
       if (!v) { f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake'); return; }
       var before = E.allSubmitted(S.attempt);
       E.setAnswer(S.attempt, i, v);
@@ -441,7 +443,7 @@
       if (next >= 0) focusQ(next);
       else if (!before) { var c = document.getElementById('console'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     } else if (kind === 'guess') {
-      var g = f.querySelector('input').value.trim();
+      var g = capFirst(f.querySelector('input').value.trim());
       if (!g) return;
       var repeat = S.attempt.categoryAttempts.some(function (x) { return x.guess && E.normalize(x.guess) === E.normalize(g) && sameAnswers(x.answersSnapshot, S.attempt.submittedAnswers); });
       if (repeat) { toast('YOU ALREADY TRIED THAT ONE'); return; }
