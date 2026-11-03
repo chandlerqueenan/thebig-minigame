@@ -226,7 +226,7 @@
     var out = '<article class="' + cls + '" id="q' + i + '" style="--host:' + esc(h.color) + '">' +
       '<div class="q-head"><div class="q-avatar">' + avatar(h, 48) + '</div>' +
       '<div class="who"><div class="name">' + esc(h.name.toUpperCase()) + '</div><span class="domain">' + esc(h.domain) + '</span>' +
-        (submitted && hostLine(h) ? '<div class="bubble' + (S.justLocked === i ? ' pop-in' : '') + '">' + esc(hostLine(h)) + '</div>' : '') + '</div>' +
+        (S.bubble && S.bubble.i === i && Date.now() < S.bubble.until && hostLine(h) ? '<div class="bubble pop-in" id="bubble' + i + '">' + esc(hostLine(h)) + '</div>' : '') + '</div>' +
       '<div class="q-num">Q' + (i + 1) + '</div></div>' +
       '<p class="q-prompt">' + esc(q.prompt) + '</p>';
     if (editing) {
@@ -429,11 +429,13 @@
       if (!v) { f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake'); return; }
       var before = E.allSubmitted(S.attempt);
       E.setAnswer(S.attempt, i, v);
-      delete S.editing[i]; delete S.drafts[i]; S.justLocked = i;
+      delete S.editing[i]; delete S.drafts[i];
+      S.bubble = { i: i, until: Date.now() + 3000 };
+      clearTimeout(S.bubbleTimer);
+      S.bubbleTimer = setTimeout(function () { var b = document.getElementById('bubble' + i); if (b) b.remove(); S.bubble = null; }, 3000);
       save();
       if (document.activeElement) document.activeElement.blur();
       render();
-      S.justLocked = null;
       // move to the next empty question, or to the category console once all six are in
       var next = S.attempt.submittedAnswers.findIndex(function (a) { return !a || !a.trim(); });
       if (next >= 0) focusQ(next);

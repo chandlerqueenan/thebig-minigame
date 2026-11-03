@@ -250,5 +250,5 @@ svg { display: block; }
 .results .win-line { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px;
   font-family: var(--chunky); font-size: 18px; color: var(--ink); text-shadow: none; }
 
-.q-head .bubble.pop-in { animation: bubble-pop .35s steps(4) both; }
-@keyframes bubble-pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.q-head .bubble.pop-in { animation: bubble-pop 3s linear both; transform-origin: left center; }
+@keyframes bubble-pop { 0% { transform: scale(.3); opacity: 0; } 10% { transform: scale(1); opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
