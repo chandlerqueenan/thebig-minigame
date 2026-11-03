@@ -589,7 +589,10 @@
   }
 
   // expose for debugging / tests
-  window.addEventListener('hashchange', function () { if (S.puzzles.length) { route(); window.scrollTo(0, 0); } });
+  window.addEventListener('hashchange', function () {
+    if (/^#test$/i.test(location.hash) && CFG.testerHash && !TESTER) { renderTesterGate(); return; }
+    if (S.puzzles.length) { route(); window.scrollTo(0, 0); }
+  });
   BMG.app = { state: S, store: store, shareText: shareText };
 
   // Visiting the live link with #test asks for the tester password.
