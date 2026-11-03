@@ -59,7 +59,7 @@ window.BMG.config = {
   ],
 
   // SHA-256 of the tester password (lowercase, spaces removed). Open the live link with #test to enter it.
-  testerHash: '392d1b3e9688c2b944c95a106eeb51779699d545caa21a31188377ed368ba00e',
+  testerHash: '398a882c14e43b17f2455ee9b7616d767727c523a531587dde8ae7bdc4dfda9c',
 
   // Jacob's line, shown when he solves a puzzle.
   winLine: "It's so Wavy",
