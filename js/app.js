@@ -4,9 +4,13 @@
 (function () {
   'use strict';
   var BMG = window.BMG, E = BMG.engine, CFG = BMG.config;
-  var STORE_KEY = 'bmg:v1';
   var $app = document.getElementById('app');
   var params = new URLSearchParams(location.search);
+  // Tester mode: unlocked with a password on the live site (see CFG.testerHash). It plays like the preview
+  // and keeps its progress under its own key, so it never touches the real save.
+  var TESTER = false;
+  try { TESTER = !!CFG.testerHash && localStorage.getItem('bmg:tester') === CFG.testerHash; } catch (e) {}
+  var STORE_KEY = TESTER ? 'bmg:test' : 'bmg:v1';
 
   var THEME_EMOJI = { holiday: '🎄', newyear: '🎉', winter: '❄️', valentine: '💘', stpatricks: '🍀', spring: '🌷',
     summer: '☀️', july4: '🎆', fall: '🍂', halloween: '🎃', thanksgiving: '🦃' };
@@ -27,7 +31,7 @@
   // ---------- state ----------
   var S = {
     puzzles: [], schedule: [], today: 0, day: 0, puzzle: null, attempt: null,
-    theme: null, themeId: null, editing: {}, drafts: {}, guessDraft: '', lastFeedback: null, preview: (CFG.allowPreviewParam !== false && params.has('preview')) || !!CFG.preview
+    theme: null, themeId: null, editing: {}, drafts: {}, guessDraft: '', lastFeedback: null, preview: TESTER || (CFG.allowPreviewParam !== false && params.has('preview')) || !!CFG.preview
   };
 
   function esc(s) {
@@ -180,7 +184,7 @@
     return '<div class="logo"><h1><small>THE</small>BIG MINIGAME</h1></div>';
   }
   function topBar() {
-    var bar = S.preview ? '<div class="preview-bar">PREVIEW · ' + S.schedule.length + ' PUZZLES · <a href="#" data-action="archive">PICK DAY</a> · <a href="#" data-action="reset">RESET</a></div>' : '';
+    var bar = S.preview ? '<div class="preview-bar">' + (TESTER ? 'TEST MODE' : 'PREVIEW') + ' · ' + S.schedule.length + ' PUZZLES · <a href="#" data-action="archive">PICK DAY</a> · <a href="#" data-action="reset">RESET</a>' + (TESTER ? ' · <a href="#" data-action="exit-test">EXIT TEST</a>' : '') + '</div>' : '';
     return bar + '<div class="top">' +
       '<button class="icon-btn" type="button" data-action="help" aria-label="How to play">?</button>' +
       '<div style="display:flex;gap:8px">' +
@@ -543,6 +547,11 @@
       toast('PROGRESS ERASED'); route(); window.scrollTo(0, 0);
     }
     else if (a === 'share') share();
+    else if (a === 'exit-test') {
+      e.preventDefault();
+      try { localStorage.removeItem('bmg:tester'); } catch (err) {}
+      location.replace(location.pathname);
+    }
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
 
@@ -566,5 +575,33 @@
   // expose for debugging / tests
   window.addEventListener('hashchange', function () { if (S.puzzles.length) { route(); window.scrollTo(0, 0); } });
   BMG.app = { state: S, store: store, shareText: shareText };
-  boot();
+
+  // Visiting the live link with #test asks for the tester password.
+  function renderTesterGate() {
+    $app.innerHTML = '<div class="splash">' + logoHTML() +
+      '<p class="gift">TESTER ACCESS</p>' +
+      '<form class="answer-row" data-form="tester" style="max-width:340px;margin:0 auto">' +
+      '<label class="sr" for="tpw">Password</label>' +
+      '<input id="tpw" type="password" autocomplete="off" autocapitalize="none" placeholder="Password">' +
+      '<button class="btn" type="submit">ENTER</button></form>' +
+      '<p class="hint" id="tmsg"></p><p class="hint"><a href="' + location.pathname + '">Back</a></p></div>';
+  }
+  document.addEventListener('submit', function (e) {
+    if (e.target.getAttribute('data-form') !== 'tester') return;
+    e.preventDefault();
+    var pw = document.getElementById('tpw').value.trim().toLowerCase().replace(/\s+/g, '');
+    if (!window.crypto || !crypto.subtle) { document.getElementById('tmsg').textContent = 'This browser can\'t check the password.'; return; }
+    crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw)).then(function (buf) {
+      var hex = Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+      if (hex === CFG.testerHash) {
+        try { localStorage.setItem('bmg:tester', hex); } catch (err) {}
+        location.replace(location.pathname);
+      } else {
+        document.getElementById('tmsg').textContent = 'Nope. Try again.';
+      }
+    });
+  });
+
+  if (/^#test$/i.test(location.hash) && CFG.testerHash && !TESTER) renderTesterGate();
+  else boot();
 })();

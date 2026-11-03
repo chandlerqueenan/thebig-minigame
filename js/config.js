@@ -58,6 +58,9 @@ window.BMG.config = {
       avatar: { skin: '#f3cdb2', hair: '#6a3b22', beard: '#8a5a3c', eyes: '#3d6f9e', hairStyle: 'swoop', face: 'none', shirt: '#202024', neck: 'crew', collar: '#2c2c31' } }
   ],
 
+  // SHA-256 of the tester password (lowercase, spaces removed). Open the live link with #test to enter it.
+  testerHash: '392d1b3e9688c2b944c95a106eeb51779699d545caa21a31188377ed368ba00e',
+
   // Jacob's line, shown when he solves a puzzle.
   winLine: "It's so Wavy",
 
