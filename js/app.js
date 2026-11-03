@@ -98,6 +98,7 @@
     }
     S.attempt = store.attempts[id];
     S.editing = {}; S.drafts = {};
+    if (S.draftFor !== id) { S.guessDraft = ''; S.draftFor = id; }
     S.lastFeedback = null;
     render();
   }
@@ -225,7 +226,7 @@
     var out = '<article class="' + cls + '" id="q' + i + '" style="--host:' + esc(h.color) + '">' +
       '<div class="q-head"><div class="q-avatar">' + avatar(h, 48) + '</div>' +
       '<div class="who"><div class="name">' + esc(h.name.toUpperCase()) + '</div><span class="domain">' + esc(h.domain) + '</span>' +
-        (hostLine(h) ? '<div class="bubble">' + esc(hostLine(h)) + '</div>' : '') + '</div>' +
+        (submitted && hostLine(h) ? '<div class="bubble' + (S.justLocked === i ? ' pop-in' : '') + '">' + esc(hostLine(h)) + '</div>' : '') + '</div>' +
       '<div class="q-num">Q' + (i + 1) + '</div></div>' +
       '<p class="q-prompt">' + esc(q.prompt) + '</p>';
     if (editing) {
@@ -428,10 +429,11 @@
       if (!v) { f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake'); return; }
       var before = E.allSubmitted(S.attempt);
       E.setAnswer(S.attempt, i, v);
-      delete S.editing[i]; delete S.drafts[i];
+      delete S.editing[i]; delete S.drafts[i]; S.justLocked = i;
       save();
       if (document.activeElement) document.activeElement.blur();
       render();
+      S.justLocked = null;
       // move to the next empty question, or to the category console once all six are in
       var next = S.attempt.submittedAnswers.findIndex(function (a) { return !a || !a.trim(); });
       if (next >= 0) focusQ(next);
