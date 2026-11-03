@@ -128,7 +128,7 @@
     }
     $app.innerHTML =
       '<div class="splash">' + logoHTML() +
-      '<p class="gift">INSERT COIN…<br>THE WARCHEST OPENS IN</p>' +
+      '<p class="gift">THE WARCHEST OPENS IN</p>' +
       '<div class="clock" id="clock">--</div>' + playerCard() +
       '<p class="sub" style="margin:22px 0 4px;color:var(--muted)">YOUR HOSTS</p>' + lineup() +
       '<p class="press">' + esc(fmtLaunch()) + '</p></div>';
