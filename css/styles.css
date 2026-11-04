@@ -181,11 +181,11 @@ svg { display: block; }
 /* ---------- intro / countdown ---------- */
 .splash { text-align: center; padding-top: 6vh; }
 .splash .gift { font-family: var(--pixel); font-size: 11px; color: var(--accent2); letter-spacing: 2px; line-height: 1.8; margin: 18px 0; }
-.lineup { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 22px 0; }
+.lineup { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 8px; margin: 22px 0; align-items: start; }
 .lineup figure { margin: 0; display: grid; justify-items: center; gap: 6px; }
 .lineup figure svg { animation: bob 1.2s steps(2) infinite; }
 .lineup figure:nth-child(2n) svg { animation-delay: .6s; }
-.lineup figcaption { font-family: var(--pixel); font-size: 9px; }
+.lineup figcaption { font-family: var(--pixel); font-size: 9px; text-align: center; overflow-wrap: break-word; }
 .lineup figcaption small { display: block; font-family: var(--body); font-size: 13px; color: var(--muted); margin-top: 4px; }
 @keyframes bob { 50% { transform: translateY(-3px); } }
 .press { font-family: var(--pixel); font-size: 11px; color: var(--glow); animation: blink 1s steps(2) infinite; margin: 18px 0; }
